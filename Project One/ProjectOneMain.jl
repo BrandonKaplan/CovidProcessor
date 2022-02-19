@@ -1,26 +1,55 @@
+#=
+Reminders for self: Check if the country exists first for command 1 > 1
+=#
 function main()
     # title sequence
     user_response = ""
 
     while user_response != "quit"
-        # list of commands:
+        # list of basic menu commands
         println("Type '1' for Vaccination Records")
-        println("Please Type a Command Number: ")
+        println("Type '2' for Mortality Records")
+        println("Please Type a Command Number or 'quit' to leave: ")
+        println()
 
         user_response = readline()
 
         # Vaccine commands 
         if (cmp(user_response, "1") == 0)
             vaccination_dict = vaccinations()
-            println("Type '1' and a Country Name to Retrieve Quantity of Vaccines")
-            println("Type '2' for the Top 10 Countries in terms of Vaccines")
-            println("Type '3' for the Bottom 10 Countries in terms of Vaccines")
-        end
+            command_num = ""
+            while (command_num != "back")
+                println("Type '1' to Retrieve the Quantity of People Vaccinated for a Country")
+                println("Type '2' for the Top 10 Countries in terms of Vaccines")
+                println("Type '3' for the Bottom 10 Countries in terms of Vaccines")
+                println("Please Type a Command Number or 'back' to go back to the Main Menu: ")
+                println()
+
+                command_num = readline()
+                if (command_num == "1")
+                    println("Type a country: ")
+                    country = readline()
+                    println("There are " * string(get(vaccination_dict, country, 0)) * " vaccinated people for " * country)
+                elseif (command_num == "2")
+                    top_vaccinated(vaccination_dict)
+                elseif (command_num == "3") 
+                    
+                else 
+                    println("Not a valid command, please try again...")
+                end
+            end
+
         # Mortality commands
-        if (cmp(user_response, "2") == 0)
+        elseif (cmp(user_response, "2") == 0)
             println("Type '1' Mortality Across All 3 Years (2020, 2021, 2022)")
             println("Type '2' Mortality Across All 3 Years")
+        
+        # For bad input commands from the user
+        else 
+            println("Not a valid command, please try again...")
         end
+
+        
     end
 
 end
@@ -39,7 +68,11 @@ function vaccinations()
     readline(file)
     # goes through each of the CSV lines
     for line in readlines(file)
-        println(line)
+        line = split(line, ",")
+        # arrays are apparently not zero indexed in Julia
+        if (line[4] != "") 
+            vaccination_dict[line[1]] = parse(Int64, line[4])
+        end
     end
     close(file) 
 
@@ -70,5 +103,40 @@ function mortality()
 
     return mortality_dict
 end
+
+#=
+Prints off the top ten vaccinated countries (in order)
+=#
+function top_vaccinated(vaccination_dict)
+    top_ten = []
+    for (k, v) in vaccination_dict
+        println(top_ten)
+         # makes sure the list is full of values 
+        if (length(top_ten) == 0)
+            push!(top_ten, k)
+        elseif (length(top_ten) < 10)
+            for index in range(1, length(top_ten))
+                if (v > get(vaccination_dict, top_ten[index], 0))
+                    insert!(top_ten, index, k)
+                    break
+                elseif(index == length(top_ten))
+                    push!(top_ten, k)
+                end
+            end
+        else 
+            for index in 1:10
+                if (v > get(vaccination_dict, top_ten[index], 0))
+                    insert!(top_ten, index, k)
+                    break
+                end
+            end
+        end
+        # ensures the array doesnt exceed 10 elements
+        while (length(top_ten) > 10)
+            pop!(top_ten)
+        end
+    end
+    println(top_ten)
+end 
 
 main()
