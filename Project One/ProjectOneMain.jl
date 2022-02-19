@@ -20,8 +20,8 @@ function main()
             command_num = ""
             while (command_num != "back")
                 println("Type '1' to Retrieve the Quantity of People Vaccinated for a Country")
-                println("Type '2' for the Top 10 Countries in terms of Vaccines")
-                println("Type '3' for the Bottom 10 Countries in terms of Vaccines")
+                println("Type '2' for the Top 10 Groups in terms of Vaccines")
+                println("Type '3' for the Bottom 10 Groups in terms of Vaccines")
                 println("Please Type a Command Number or 'back' to go back to the Main Menu: ")
                 println()
 
