@@ -22,6 +22,7 @@ function main()
                 println("Type '1' to Retrieve the Quantity of People Vaccinated for a Country")
                 println("Type '2' for the Top 10 Groups in terms of Vaccines")
                 println("Type '3' for the Bottom 10 Groups in terms of Vaccines")
+                println("Type '4' for the average amount vaccinated across all groups")
                 println("Please Type a Command Number or 'back' to go back to the Main Menu: ")
                 println()
 
@@ -33,7 +34,9 @@ function main()
                 elseif (command_num == "2")
                     top_vaccinated(vaccination_dict)
                 elseif (command_num == "3") 
-                    
+                    bottom_vaccinated(vaccination_dict)
+                elseif (command_num == "4") 
+                    average_vaccinated(vaccination_dict)
                 else 
                     println("Not a valid command, please try again...")
                 end
@@ -110,10 +113,10 @@ Prints off the top ten vaccinated countries (in order)
 function top_vaccinated(vaccination_dict)
     top_ten = []
     for (k, v) in vaccination_dict
-        println(top_ten)
-         # makes sure the list is full of values 
+         # makes sure the list has at least one value to start
         if (length(top_ten) == 0)
             push!(top_ten, k)
+        # adds keys until there is at least 10 (must be sorted though)
         elseif (length(top_ten) < 10)
             for index in range(1, length(top_ten))
                 if (v > get(vaccination_dict, top_ten[index], 0))
@@ -123,6 +126,7 @@ function top_vaccinated(vaccination_dict)
                     push!(top_ten, k)
                 end
             end
+        # compares if any of the current keys are less than the current value
         else 
             for index in 1:10
                 if (v > get(vaccination_dict, top_ten[index], 0))
@@ -131,12 +135,79 @@ function top_vaccinated(vaccination_dict)
                 end
             end
         end
-        # ensures the array doesnt exceed 10 elements
+        # ensures the array doesnt exceed 10 elements due to insertion
         while (length(top_ten) > 10)
             pop!(top_ten)
         end
     end
-    println(top_ten)
+    # print off the top ten vaccinated groups
+    println()
+    println("Top Ten Vaccinated Groups: ")
+    for group in top_ten
+        println("   " * string(get(vaccination_dict, group, 0)) * "  vaccinated for " * group)
+    end
+    println()
 end 
+
+#=
+Prints off the bottom ten vaccinated countries (in order)
+=#
+function bottom_vaccinated(vaccination_dict)
+    bottom_ten = []
+    for (k, v) in vaccination_dict
+         # makes sure the list has at least one value to start
+        if (length(bottom_ten) == 0)
+            push!(bottom_ten, k)
+        # adds keys until there is at least 10 (must be sorted though)
+        elseif (length(bottom_ten) < 10)
+            for index in range(1, length(bottom_ten))
+                if (v < get(vaccination_dict, bottom_ten[index], 0))
+                    insert!(bottom_ten, index, k)
+                    break
+                elseif(index == length(bottom_ten))
+                    push!(bottom_ten, k)
+                end
+            end
+        # compares if any of the current keys are greater than the current value
+        else 
+            for index in 1:10
+                if (v < get(vaccination_dict, bottom_ten[index], 0))
+                    insert!(bottom_ten, index, k)
+                    break
+                end
+            end
+        end
+        # ensures the array doesnt exceed 10 elements due to insertion
+        while (length(bottom_ten) > 10)
+            pop!(bottom_ten)
+        end
+    end
+
+    # print off the bottom ten vaccinated groups
+    println()
+    println("Bottom Ten Vaccinated Groups: ")
+    for group in bottom_ten
+        println("   " * string(get(vaccination_dict, group, 0)) * "  vaccinated for " * group)
+    end
+    println()
+end 
+
+#=
+Calculates the average amount of vaccinated people among the groups
+=#
+function average_vaccinated(vaccination_dict)
+    group_size = 0
+    vaccinated = 0
+    # iterates for all the key/value pairs in the dictionary
+    for (key, value) in vaccination_dict
+        group_size = group_size + 1
+        vaccinated = vaccinated + value
+    end 
+    average = vaccinated ÷ group_size
+    println()
+    println("For the " * string(group_size) * " groups, " * string(average) * " people are vaccinated on average")
+    println()
+
+end
 
 main()
