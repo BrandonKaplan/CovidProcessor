@@ -9,6 +9,7 @@ function main()
         # list of basic menu commands
         println("Type '1' for Vaccination Records")
         println("Type '2' for Mortality Records")
+        println("Type '3' for Hospilization Records")
         println("Please Type a Command Number or 'quit' to leave: ")
         println()
 
@@ -27,6 +28,7 @@ function main()
                 println()
 
                 command_num = readline()
+
                 if (command_num == "1")
                     println("Type a country: ")
                     country = readline()
@@ -46,7 +48,12 @@ function main()
         elseif (cmp(user_response, "2") == 0)
             println("Type '1' Mortality Across All 3 Years (2020, 2021, 2022)")
             println("Type '2' Mortality Across All 3 Years")
-        
+
+        # Hospilization Commands
+        elseif (cmp(user_response, "3") == 0)
+            hospitalization_dict = hospitalizations()
+            println(hospitalization_dict)
+
         # For bad input commands from the user
         else 
             println("Not a valid command, please try again...")
@@ -56,6 +63,44 @@ function main()
     end
 
 end
+
+#=
+Processes the file covid-hospilizations.csv file with the format
+    entity, iso_code, date, indicator, value
+
+Creates a dictionary with the countries as keys (as strings) with 
+the value be an array of size 2 that is [total hospilizations, total
+days]
+
+Important note has to avoid anything else when the indicator is not
+"Daily ICU occupancy"
+=#
+function hospitalizations()
+    # create a dictionary mapping locations to 
+    hospitalization_dict = Dict()
+    file = open("covid-hospitalizations.csv", "r")
+    readline(file)
+    # goes through each of the CSV lines
+    for line in readlines(file)
+        line = split(line, ",")
+        if (line[4] == "Daily ICU occupancy") 
+            country = line[1]
+            value = get(hospitalization_dict, country, -1)
+            if (value == -1)
+                # puts the first quantity of hospilizations and 
+                value = [parse(Float64, line[5]), 1]
+                hospitalization_dict[country] = value
+            else 
+                new_value = [value[1] + parse(Float64, line[5]), value[2] + 1]
+                hospitalization_dict[country] = new_value
+            end
+        end
+    end
+    close(file) 
+    return hospitalization_dict
+end
+
+    
 
 #=
 Processes the file vaccinations.csv file with the format:
@@ -94,13 +139,16 @@ p_proj_65_74, p_proj_75_84, p_proj_85p, cum_excess_per_million_proj_all_ages, ex
 deaths_2022_all_ages,deaths_2020_2022_all_ages
 =#
 function mortality()
+    # maps country name to [death per year x]
     mortality_dict = Dict()
     file = open("excess_mortality.csv", "r")
     readline(file)
 
     # goes through each of the CSV lines
     for line in readlines(file)
-        println(line)
+        line = split(line, ",")
+        country = line[1]
+        deaths = [line[1]]
     end
     close(file) 
 
